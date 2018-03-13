@@ -17,40 +17,54 @@ namespace Kata
 
 	public class Kata
 	{
-		private static Dictionary<string, string> dic = new Dictionary<string, string>();
-		static string[] key = { "A","B","C","D","E","F","G","H","I","J","K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W","X","Y","Z" };
-		static string[] value = { "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M" };
-		
-		private static void initDictionary()
-		{
-			for (int i = 0; i < key.Length; i++)
-			{
-				dic.Add(key[i], value[i]);
-				dic.Add(key[i].ToLower(), value[i].ToLower());
-			}
-		}
+		private static readonly int ROTIndex = 13;
+		private static readonly string LetterWords = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		private static Dictionary<string, string> LetterDictionary = new Dictionary<string, string>();
 
 		public static string Rot13(string input)
 		{
-			initDictionary();
-			StringBuilder sb = new StringBuilder();
+			InitialLetterCollection();
 
-			var splitString = input.ToCharArray();
-			for (int i = 0; i < splitString.Length; i++)
+			string result = string.Empty;
+			
+			input.ToCharArray().ToList().ForEach(item =>
 			{
-				sb.Append(conventChar(splitString[i]));
-			}
-			return sb.ToString() ;
-	    }
+				result = string.Concat(result, ConvertLetter(item.ToString()));
+			});
 
-		private static string conventChar(char input)
+			return result;
+		}
+		private static string ConvertLetter(string input)
 		{
-			var code = input.ToString();
-			if (dic.ContainsKey(code))
+			if (LetterDictionary.ContainsKey(input))
 			{
-				return dic[code];
+				return LetterDictionary[input];
 			}
-			return code;
+			return input;
+		}
+
+		private static void InitialLetterCollection()
+		{
+			LetterWords.ToList().ForEach( item =>
+			{
+				LetterDictionary.Add(item.ToString(), ROTLetter(item.ToString()));
+				LetterDictionary.Add(item.ToString().ToLower(), ROTLetter(item.ToString()).ToLower());
+			});
+		}
+
+		private static string ROTLetter(string input)
+		{
+			var letterIndex = LetterWords.IndexOf(input.ToString());
+
+			if (letterIndex < 0)
+			{
+				return input.ToString();
+			}
+			else
+			{
+				var newLetterIndex = (letterIndex >= ROTIndex) ? letterIndex -= ROTIndex : letterIndex += ROTIndex;
+				return LetterWords.ElementAt(newLetterIndex).ToString();
+			}
 		}
 	}
 }
